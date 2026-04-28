@@ -25,13 +25,9 @@ class PredictPostings(EntryPredictor):
 
     @property
     def targets(self) -> list[str]:
-        assert self.training_data is not None
-        return [
-            " ".join(sorted(posting.account for posting in txn.postings))
-            for txn in self.training_data
-        ]
+        pass
 
     def apply_prediction(
         self, entry: Transaction, prediction: str
     ) -> Transaction:
-        return update_postings(entry, prediction.split(" "))
+        pass

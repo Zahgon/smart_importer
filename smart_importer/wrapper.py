@@ -28,34 +28,29 @@ class ImporterWrapper(Importer):
 
     @property
     def name(self) -> str:
-        return self.importer.name
+        pass
 
     def identify(self, filepath: str) -> bool:
-        return self.importer.identify(filepath)
+        pass
 
     def account(self, filepath: str) -> str:
-        return self.importer.account(filepath)
+        pass
 
     def date(self, filepath: str) -> datetime.date | None:
-        return self.importer.date(filepath)
+        pass
 
     def filename(self, filepath: str) -> str | None:
-        return self.importer.filename(filepath)
+        pass
 
     def deduplicate(
         self, entries: list[Directive], existing: list[Directive]
     ) -> None:
-        return self.importer.deduplicate(entries, existing)
+        pass
 
     def sort(self, entries: list[Directive], reverse: bool = False) -> None:
-        return self.importer.sort(entries, reverse)
+        pass
 
     def extract(
         self, filepath: str, existing: list[Directive]
     ) -> list[Directive]:
-        entries = self.importer.extract(filepath, existing)
-        account = self.importer.account(filepath)
-        modified_entries = self.predictor.hook(
-            [(filepath, entries, account, self.importer)], existing
-        )
-        return modified_entries[0][1]
+        pass

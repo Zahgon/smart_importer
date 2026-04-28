@@ -22,19 +22,12 @@ class NoFitMixin:
 
     def fit(self, *_: Any, **__: Any) -> Any:
         """A noop."""
-        return self
+        pass
 
 
 def txn_attr_getter(attribute_name: str) -> Callable[[Transaction], Any]:
     """Return attribute getter for a transaction that also handles metadata."""
-    if attribute_name.startswith("meta."):
-        meta_attr = attribute_name[5:]
-
-        def getter(txn: Transaction) -> Any:
-            return txn.meta.get(meta_attr)
-
-        return getter
-    return operator.attrgetter(attribute_name)
+    pass
 
 
 class NumericTxnAttribute(BaseEstimator, TransformerMixin, NoFitMixin):  # type: ignore[misc]
@@ -48,7 +41,7 @@ class NumericTxnAttribute(BaseEstimator, TransformerMixin, NoFitMixin):  # type:
         self, data: list[Transaction], _y: None = None
     ) -> numpy.ndarray[tuple[int, ...], Any]:
         """Return list of entry attributes."""
-        return numpy.array([self._txn_getter(d) for d in data], ndmin=2).T
+        pass
 
 
 class AttrGetter(BaseEstimator, TransformerMixin, NoFitMixin):  # type: ignore[misc]
@@ -61,7 +54,7 @@ class AttrGetter(BaseEstimator, TransformerMixin, NoFitMixin):  # type: ignore[m
 
     def transform(self, data: list[Transaction], _y: None = None) -> list[Any]:
         """Return list of entry attributes."""
-        return [self._txn_getter(d) or self.default for d in data]
+        pass
 
 
 class StringVectorizer(CountVectorizer):  # type: ignore[misc]
@@ -79,16 +72,10 @@ class StringVectorizer(CountVectorizer):  # type: ignore[misc]
         )
 
     def fit_transform(self, raw_documents: list[str], y: None = None) -> Any:
-        try:
-            return super().fit_transform(raw_documents, y)
-        except ValueError:
-            return numpy.zeros(shape=(len(raw_documents), 0))
+        pass
 
     def transform(self, raw_documents: list[str], _y: None = None) -> Any:
-        try:
-            return super().transform(raw_documents)
-        except ValueError:
-            return numpy.zeros(shape=(len(raw_documents), 0))
+        pass
 
 
 def get_pipeline(
@@ -97,12 +84,4 @@ def get_pipeline(
     token_pattern: None | str = r"(?u)\b\w\w+\b",
 ) -> Any:
     """Make a pipeline for a given entry attribute."""
-
-    if attribute.startswith("date."):
-        return NumericTxnAttribute(attribute)
-
-    # Treat all other attributes as strings.
-    return make_pipeline(
-        AttrGetter(attribute, default=""),
-        StringVectorizer(tokenizer, token_pattern=token_pattern),
-    )
+    pass

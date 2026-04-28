@@ -80,7 +80,7 @@ class EntryPredictor:
         Args:
             importer: The importer to wrap.
         """
-        return ImporterWrapper(importer, self)
+        pass
 
     def hook(
         self,
@@ -99,82 +99,21 @@ class EntryPredictor:
         Returns:
             A list of entries, modified by this predictor.
         """
-        with self.lock:
-            all_entries = existing_entries or []
-            self.load_open_accounts(all_entries)
-            all_transactions = list(filter_txns(existing_entries))
-            self.define_pipeline()
-
-            result = []
-            for filename, entries, account, importer in imported_entries:
-                self.load_training_data(all_transactions, account)
-                self.train_pipeline()
-                result.append(
-                    (
-                        filename,
-                        self.process_entries(entries),
-                        account,
-                        importer,
-                    )
-                )
-            return result
+        pass
 
     def load_open_accounts(self, existing_entries: data.Directives) -> None:
         """Return map of accounts which have been opened but not closed."""
-        account_map = {}
-
-        for entry in beancount_sorted(existing_entries):
-            # pylint: disable=isinstance-second-argument-not-valid-type
-            if isinstance(entry, Open):
-                account_map[entry.account] = entry
-            elif isinstance(entry, Close):
-                account_map.pop(entry.account)
-
-        self.open_accounts = account_map
+        pass
 
     def load_training_data(
         self, all_transactions: list[Transaction], account: str
     ) -> None:
         """Load training data, i.e., a list of Beancount entries."""
-        self.training_data = [
-            txn
-            for txn in all_transactions
-            if self.training_data_filter(txn, account)
-        ]
-        if not self.training_data:
-            if len(all_transactions) > 0:
-                logger.warning(
-                    "Cannot train the machine learning model"
-                    "None of the training data matches the accounts"
-                )
-            else:
-                logger.warning(
-                    "Cannot train the machine learning model"
-                    "No training data found"
-                )
-        else:
-            logger.debug(
-                "Loaded training data with %d transactions, "
-                "filtered from %d total transactions",
-                len(self.training_data),
-                len(all_transactions),
-            )
+        pass
 
     def training_data_filter(self, txn: Transaction, account: str) -> bool:
         """Filter function for the training data."""
-        if len(txn.postings) < 2:
-            return False
-
-        found_import_account = False
-        for pos in txn.postings:
-            if pos.account not in self.open_accounts:
-                return False
-            if pos.account in self.denylist_accounts:
-                return False
-            if not account or pos.account.startswith(account):
-                found_import_account = True
-
-        return found_import_account
+        pass
 
     @property
     def targets(self) -> list[str]:
@@ -183,55 +122,15 @@ class EntryPredictor:
         Returns:
             A list training targets (of the same length as the training data).
         """
-        if not self.attribute:
-            raise NotImplementedError
-        assert self.training_data is not None
-        return [
-            getattr(entry, self.attribute) or ""
-            for entry in self.training_data
-        ]
+        pass
 
     def define_pipeline(self) -> None:
         """Defines the machine learning pipeline based on given weights."""
-
-        transformers = [
-            (
-                attribute,
-                get_pipeline(
-                    attribute,
-                    tokenizer=self.string_tokenizer,
-                    token_pattern=self.string_token_pattern,
-                ),
-            )
-            for attribute in self.weights
-        ]
-
-        self.pipeline = make_pipeline(
-            FeatureUnion(
-                transformer_list=transformers, transformer_weights=self.weights
-            ),
-            SVC(kernel="linear"),
-        )
+        pass
 
     def train_pipeline(self) -> None:
         """Train the machine learning pipeline."""
-
-        self.is_fitted = False
-        targets_count = len(set(self.targets))
-
-        if targets_count == 0:
-            logger.warning(
-                "Cannot train the machine learning model "
-                "because there are no targets."
-            )
-        elif targets_count == 1:
-            self.is_fitted = True
-            logger.debug("Only one target possible.")
-        else:
-            assert self.pipeline is not None
-            self.pipeline.fit(self.training_data, self.targets)
-            self.is_fitted = True
-            logger.debug("Trained the machine learning model.")
+        pass
 
     def process_entries(
         self, imported_entries: data.Directives
@@ -243,12 +142,7 @@ class EntryPredictor:
         Returns:
             The list of entries to be imported.
         """
-        enhanced_transactions = self.process_transactions(
-            list(filter_txns(imported_entries))
-        )
-        return merge_non_transaction_entries(
-            imported_entries, enhanced_transactions
-        )
+        pass
 
     def apply_prediction(
         self, entry: Transaction, prediction: Any
@@ -262,35 +156,10 @@ class EntryPredictor:
         Returns:
             The entry with the prediction applied.
         """
-        if not self.attribute:
-            raise NotImplementedError
-        return set_entry_attribute(
-            entry, self.attribute, prediction, overwrite=self.overwrite
-        )
+        pass
 
     def process_transactions(
         self, transactions: list[Transaction]
     ) -> list[Transaction]:
         """Process a list of transactions."""
-        if not self.is_fitted or not transactions:
-            return transactions
-        if self.predict:
-            if len(set(self.targets)) == 1:
-                transactions = [
-                    self.apply_prediction(entry, self.targets[0])
-                    for entry in transactions
-                ]
-                logger.debug("Apply predictions without pipeline")
-            elif self.pipeline:
-                predictions = self.pipeline.predict(transactions)
-                transactions = [
-                    self.apply_prediction(entry, prediction)
-                    for entry, prediction in zip(transactions, predictions)
-                ]
-                logger.debug("Apply predictions with pipeline")
-            logger.debug(
-                "Added predictions to %d transactions",
-                len(transactions),
-            )
-
-        return transactions
+        pass
